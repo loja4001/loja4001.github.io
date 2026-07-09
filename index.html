@@ -844,25 +844,42 @@ async function modalVisitacao(v=null){
 }
 
 /* ---------------- TESOURARIA ---------------- */
+const MESES_PT = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+function fmtMesAno(d){
+  if(!d) return '—';
+  const [y, m] = d.split('-');
+  const idx = Number(m) - 1;
+  return `${MESES_PT[idx] ?? m}/${y}`;
+}
+function mesInputParaISO(valorMes){
+  // valorMes vem do <input type="month"> no formato "YYYY-MM"
+  if(!valorMes) return null;
+  return `${valorMes}-01`;
+}
+function isoParaMesInput(dataISO){
+  if(!dataISO) return '';
+  return dataISO.slice(0, 7);
+}
+const STATUS_TESOURARIA = { pago: 'Pago', nao_pago: 'Não pago', isento: 'Isento' };
 async function renderTesouraria(){
   const main = $('#main');
   main.innerHTML = `
     <div class="page-head"><h2>Tesouraria</h2><button id="btn-novo-lancamento">+ Novo lançamento</button></div>
     <div class="toolbar">
       <input type="text" id="busca-lancamento" placeholder="Buscar por descrição...">
-      <input type="date" id="filtro-tesouraria-de" style="max-width:180px;" title="De">
-      <input type="date" id="filtro-tesouraria-ate" style="max-width:180px;" title="Até">
+      <input type="month" id="filtro-tesouraria-de" style="max-width:180px;" title="De">
+      <input type="month" id="filtro-tesouraria-ate" style="max-width:180px;" title="Até">
     </div>
     <div class="card">
-      <h3>Lançamentos (mensalidades / cotizações)</h3>
-      <table><thead><tr><th>Data</th><th>Descrição</th><th>Valor</th><th>Pagos</th><th></th><th></th></tr></thead>
+      <h3>Lançamentos (cotizações mensais)</h3>
+      <table><thead><tr><th>Mês</th><th>Descrição</th><th>Valor</th><th>Situação</th><th></th><th></th></tr></thead>
       <tbody id="tbody-tesouraria"><tr class="empty-row"><td colspan="6">Carregando...</td></tr></tbody></table>
     </div>
     <div class="card">
       <h3>Situação dos cotizantes no período</h3>
       <div id="export-situacao"></div>
-      <table id="tabela-situacao-tesouraria"><thead><tr><th>CIM</th><th>Nome</th><th>Lançamentos</th><th>Pagos</th><th>Pendentes</th><th>Situação</th></tr></thead>
-      <tbody id="tbody-situacao-tesouraria"><tr class="empty-row"><td colspan="6">Carregando...</td></tr></tbody></table>
+      <table id="tabela-situacao-tesouraria"><thead><tr><th>CIM</th><th>Nome</th><th>Meses</th><th>Pagos</th><th>Isentos</th><th>Pendentes</th><th>Situação</th></tr></thead>
+      <tbody id="tbody-situacao-tesouraria"><tr class="empty-row"><td colspan="7">Carregando...</td></tr></tbody></table>
     </div>`;
   $('#btn-novo-lancamento').addEventListener('click', () => modalLancamento());
   $('#busca-lancamento').addEventListener('input', () => loadTesouraria());
@@ -873,11 +890,16 @@ async function renderTesouraria(){
 }
 async function loadTesouraria(){
   const filtro = $('#busca-lancamento')?.value || '';
-  const de = $('#filtro-tesouraria-de')?.value || '';
-  const ate = $('#filtro-tesouraria-ate')?.value || '';
+  const de = mesInputParaISO($('#filtro-tesouraria-de')?.value || '');
+  const ateMes = $('#filtro-tesouraria-ate')?.value || '';
   let q = sb.from('tesouraria_lancamentos').select('*').order('data', { ascending: false });
   if(de) q = q.gte('data', de);
-  if(ate) q = q.lte('data', ate);
+  if(ateMes){
+    // inclui o mês inteiro selecionado em "até"
+    const [ay, am] = ateMes.split('-').map(Number);
+    const proximoMes = am === 12 ? `${ay + 1}-01-01` : `${ay}-${String(am + 1).padStart(2,'0')}-01`;
+    q = q.lt('data', proximoMes);
+  }
   const { data: lancamentos, error } = await q;
   const tbody = $('#tbody-tesouraria');
   const tbodySit = $('#tbody-situacao-tesouraria');
@@ -892,46 +914,57 @@ async function loadTesouraria(){
 
   if(!rows.length){
     tbody.innerHTML = `<tr class="empty-row"><td colspan="6">Nenhum lançamento encontrado.</td></tr>`;
-    tbodySit.innerHTML = `<tr class="empty-row"><td colspan="6">Nenhum lançamento no período.</td></tr>`;
+    tbodySit.innerHTML = `<tr class="empty-row"><td colspan="7">Nenhum lançamento no período.</td></tr>`;
     return;
   }
 
   const ids = rows.map(l => l.id);
-  const { data: pagamentos } = await sb.from('tesouraria_pagamentos').select('lancamento_id, cim_membro, pago').in('lancamento_id', ids);
-  const pagosPorLancamento = {};
-  const pagosPorMembro = {};
+  const { data: pagamentos } = await sb.from('tesouraria_pagamentos').select('lancamento_id, cim_membro, status').in('lancamento_id', ids);
+  const statusPorLancamento = {};
+  const statusPorMembro = {};
   (pagamentos || []).forEach(p => {
-    if(p.pago){
-      pagosPorLancamento[p.lancamento_id] = (pagosPorLancamento[p.lancamento_id] || 0) + 1;
-      pagosPorMembro[p.cim_membro] = (pagosPorMembro[p.cim_membro] || 0) + 1;
-    }
+    (statusPorLancamento[p.lancamento_id] ??= {})[p.cim_membro] = p.status;
+    (statusPorMembro[p.cim_membro] ??= {})[p.lancamento_id] = p.status;
   });
 
   tbody.innerHTML = rows.map(l => {
-    const pagos = pagosPorLancamento[l.id] || 0;
-    const emDia = totalCotizantes > 0 && pagos >= totalCotizantes;
+    const statusMembros = statusPorLancamento[l.id] || {};
+    let pagos = 0, isentos = 0;
+    membros.forEach(m => {
+      const st = statusMembros[m.cim];
+      if(st === 'pago') pagos++;
+      else if(st === 'isento') isentos++;
+    });
+    const pendentes = Math.max(totalCotizantes - pagos - isentos, 0);
+    const emDia = pendentes === 0;
     return `
     <tr>
-      <td class="mono">${fmtDate(l.data)}</td>
+      <td class="mono">${fmtMesAno(l.data)}</td>
       <td>${l.descricao || '—'}</td>
       <td class="mono">${l.valor != null ? 'R$ ' + Number(l.valor).toFixed(2).replace('.', ',') : '—'}</td>
-      <td><span class="badge ${emDia ? 'ok' : 'warn'}">${pagos} / ${totalCotizantes}</span></td>
+      <td><span class="badge ${emDia ? 'ok' : 'warn'}">${pagos} pago(s)${isentos ? ' · ' + isentos + ' isento(s)' : ''} · ${pendentes} pendente(s)</span></td>
       <td><button class="ghost" onclick='modalLancamento(${JSON.stringify(l)})'>Editar</button></td>
-      <td><button class="ghost" onclick="abrirPagamentos(${l.id}, '${fmtDate(l.data)}', ${l.valor ?? 'null'}, '${l.data}')">Marcar pagamentos</button></td>
+      <td><button class="ghost" onclick="abrirPagamentos(${l.id}, '${fmtMesAno(l.data)}', ${l.valor ?? 'null'})">Marcar pagamentos</button></td>
     </tr>`;
   }).join('');
 
   const totalLancamentos = rows.length;
   tbodySit.innerHTML = membros.map(m => {
-    const pagos = pagosPorMembro[m.cim] || 0;
-    const pendentes = Math.max(totalLancamentos - pagos, 0);
-    const emDia = totalLancamentos > 0 && pendentes === 0;
+    const statusMeses = statusPorMembro[m.cim] || {};
+    let pagos = 0, isentos = 0;
+    Object.values(statusMeses).forEach(st => {
+      if(st === 'pago') pagos++;
+      else if(st === 'isento') isentos++;
+    });
+    const pendentes = Math.max(totalLancamentos - pagos - isentos, 0);
+    const emDia = pendentes === 0;
     return `
     <tr>
       <td class="mono">${m.cim}</td>
       <td>${m.nome}</td>
       <td class="mono">${totalLancamentos}</td>
       <td class="mono">${pagos}</td>
+      <td class="mono">${isentos}</td>
       <td class="mono">${pendentes}</td>
       <td><span class="badge ${emDia ? 'ok' : 'warn'}">${emDia ? 'Em dia' : 'Pendente'}</span></td>
     </tr>`;
@@ -940,7 +973,7 @@ async function loadTesouraria(){
 function modalLancamento(l=null){
   openModal(`
     <h3>${l ? 'Editar lançamento' : 'Novo lançamento'}</h3>
-    <div class="field"><label>Data</label><input type="date" id="f-data-lancamento" value="${l?.data ?? ''}"></div>
+    <div class="field"><label>Mês de referência</label><input type="month" id="f-mes-lancamento" value="${isoParaMesInput(l?.data)}"></div>
     <div class="field"><label>Descrição</label><input type="text" id="f-desc-lancamento" value="${l?.descricao ?? ''}" placeholder="Ex: Cotização Julho/2026"></div>
     <div class="field"><label>Valor (opcional)</label><input type="text" id="f-valor-lancamento" value="${l?.valor ?? ''}" placeholder="Ex: 80,00"></div>
     <div class="modal-actions">
@@ -948,8 +981,8 @@ function modalLancamento(l=null){
       <button id="btn-salvar-lancamento">Salvar</button>
     </div>`);
   $('#btn-salvar-lancamento').addEventListener('click', async () => {
-    const data = $('#f-data-lancamento').value;
-    if(!data){ toast('Escolha uma data.', true); return; }
+    const data = mesInputParaISO($('#f-mes-lancamento').value);
+    if(!data){ toast('Escolha o mês de referência.', true); return; }
     const valorStr = $('#f-valor-lancamento').value.trim().replace(',', '.');
     const payload = {
       data,
@@ -962,23 +995,25 @@ function modalLancamento(l=null){
     closeModal(); toast('Lançamento salvo.'); loadTesouraria();
   });
 }
-async function abrirPagamentos(lancamentoId, dataFmt, valorPadrao, dataISO){
+async function abrirPagamentos(lancamentoId, mesFmt, valorPadrao){
   const { data: membros } = await sb.from('membros').select('cim, nome').eq('ativo', true).eq('cotizante', true).order('nome');
   const { data: pagamentos } = await sb.from('tesouraria_pagamentos').select('*').eq('lancamento_id', lancamentoId);
   const map = {}; (pagamentos || []).forEach(p => map[p.cim_membro] = p);
   openModal(`
-    <h3>Pagamentos — ${dataFmt}</h3>
-    <div class="hint" style="margin-bottom:10px;">Marque os membros que pagaram e ajuste a data/valor de cada um, se necessário.</div>
+    <h3>Pagamentos — ${mesFmt}</h3>
+    <div class="hint" style="margin-bottom:10px;">Selecione a situação de cada cotizante neste mês.</div>
     <div style="max-height:380px; overflow-y:auto; margin-bottom:10px;">
       ${membros.map(m => {
         const info = map[m.cim] || {};
+        const status = info.status || 'nao_pago';
         return `
         <div style="display:flex; align-items:center; gap:8px; padding:8px 2px; border-bottom:1px solid rgba(168,130,60,0.12); flex-wrap:wrap;">
-          <label style="display:flex; align-items:center; gap:8px; flex:1; min-width:150px; font-size:14px;">
-            <input type="checkbox" class="chk-pagou" data-cim="${m.cim}" ${info.pago ? 'checked' : ''} style="width:16px; height:16px;">
-            ${m.nome}
-          </label>
-          <input type="date" class="inp-data-pag" data-cim="${m.cim}" value="${info.data_pagamento ?? dataISO}" style="max-width:150px;" title="Data do pagamento">
+          <span style="flex:1; min-width:150px; font-size:14px;">${m.nome}</span>
+          <select class="sel-status-pag" data-cim="${m.cim}" style="max-width:160px;">
+            <option value="nao_pago" ${status === 'nao_pago' ? 'selected' : ''}>Não pago</option>
+            <option value="pago" ${status === 'pago' ? 'selected' : ''}>Pago</option>
+            <option value="isento" ${status === 'isento' ? 'selected' : ''}>Isento</option>
+          </select>
           <input type="text" class="inp-valor-pag" data-cim="${m.cim}" value="${info.valor_pago ?? (valorPadrao ?? '')}" placeholder="Valor" style="max-width:100px;" title="Valor pago">
         </div>`;
       }).join('')}
@@ -988,18 +1023,16 @@ async function abrirPagamentos(lancamentoId, dataFmt, valorPadrao, dataISO){
       <button id="btn-salvar-pagamentos">Salvar pagamentos</button>
     </div>`);
   $('#btn-salvar-pagamentos').addEventListener('click', async () => {
-    const checks = $$('#modal-content .chk-pagou');
-    const rows = checks.map(c => {
-      const cim = Number(c.dataset.cim);
-      const dataInput = $(`.inp-data-pag[data-cim="${cim}"]`);
+    const selects = $$('#modal-content .sel-status-pag');
+    const rows = selects.map(s => {
+      const cim = Number(s.dataset.cim);
       const valorInput = $(`.inp-valor-pag[data-cim="${cim}"]`);
       const valorStr = (valorInput?.value || '').trim().replace(',', '.');
       return {
         cim_membro: cim,
         lancamento_id: lancamentoId,
-        pago: c.checked,
-        data_pagamento: c.checked ? (dataInput?.value || null) : null,
-        valor_pago: c.checked && valorStr ? Number(valorStr) : null,
+        status: s.value,
+        valor_pago: s.value === 'pago' && valorStr ? Number(valorStr) : null,
       };
     });
     const { error } = await sb.from('tesouraria_pagamentos').upsert(rows, { onConflict: 'cim_membro,lancamento_id' });

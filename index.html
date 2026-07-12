@@ -187,6 +187,18 @@
   .pillar h3{ font-size:18px; color:var(--parchment); margin-bottom:10px; font-weight:600; }
   .pillar p{ font-size:14.5px; color:var(--parchment-dim); line-height:1.6; margin:0; }
 
+  /* Missao / Visao / Valores */
+  #mvv{ background: var(--navy); border-top:1px solid var(--gold-soft); border-bottom:1px solid var(--gold-soft); }
+  .mvv-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:1px; background:var(--gold-soft); border:1px solid var(--gold-soft); }
+  .mvv-card{ background:var(--navy-deep); padding:36px 30px; display:flex; flex-direction:column; }
+  .mvv-card .icon{ width:40px; height:40px; border-radius:50%; border:1px solid var(--gold-soft); display:flex; align-items:center; justify-content:center; margin-bottom:18px; flex-shrink:0; }
+  .mvv-card .icon svg{ width:19px; height:19px; color:var(--gold-bright); }
+  .mvv-card h3{ font-size:18px; color:var(--parchment); margin-bottom:12px; font-weight:600; }
+  .mvv-card p{ font-size:14.5px; color:var(--parchment-dim); line-height:1.65; margin:0; }
+  .mvv-card ul{ margin:0; padding-left:18px; font-size:14.5px; color:var(--parchment-dim); line-height:1.85; }
+  .mvv-card ul li::marker{ color:var(--gold-bright); }
+  @media (max-width:760px){ .mvv-grid{ grid-template-columns:1fr; } }
+
   /* Reunioes */
   #reunioes{ background:
       radial-gradient(circle at 90% 0%, rgba(168,130,60,0.08), transparent 50%), var(--navy-deep); }
@@ -272,6 +284,7 @@
     </a>
     <nav class="main-nav">
       <a href="#sobre">A Loja</a>
+      <a href="#mvv">Tríade</a>
       <a href="#pilares">Valores</a>
       <a href="#reunioes">Reuniões</a>
       <a href="#contato">Contato</a>
@@ -339,7 +352,45 @@
     </div>
   </section>
 
-  <!-- PILARES -->
+  <!-- MISSÃO / VISÃO / VALORES -->
+  <section id="mvv">
+    <div class="section-inner">
+      <div class="section-head">
+        <div class="eyebrow">Nossos fundamentos</div>
+        <h2>Missão, visão e valores</h2>
+        <p>O que nos move, aonde queremos chegar e os princípios que não abrimos mão no caminho.</p>
+      </div>
+      <div class="mvv-grid">
+        <div class="mvv-card">
+          <div class="icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 2l2.4 6.5L21 11l-6.6 2.5L12 20l-2.4-6.5L3 11l6.6-2.5L12 2z"/></svg>
+          </div>
+          <h3>Missão</h3>
+          <p>Promover o aperfeiçoamento moral, intelectual e social de seus membros por meio do estudo simbólico, da prática da fraternidade e da filantropia, contribuindo para a formação de homens melhores e uma sociedade mais justa.</p>
+        </div>
+        <div class="mvv-card">
+          <div class="icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>
+          </div>
+          <h3>Visão</h3>
+          <p>Ser reconhecida, dentro do Grande Oriente do Brasil, como uma oficina sólida e unida — pela seriedade de seus trabalhos, pelo espírito fraterno entre seus membros e pelo compromisso permanente com os valores maçônicos.</p>
+        </div>
+        <div class="mvv-card">
+          <div class="icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 2l8 4v6c0 5-3.4 8.4-8 10-4.6-1.6-8-5-8-10V6l8-4z"/></svg>
+          </div>
+          <h3>Valores</h3>
+          <ul>
+            <li>Fraternidade e apoio mútuo</li>
+            <li>Liberdade de pensamento e tolerância</li>
+            <li>Ética e retidão de conduta</li>
+            <li>Estudo contínuo e busca da verdade</li>
+            <li>Compromisso filantrópico</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
   <section id="pilares">
     <div class="section-inner">
       <div class="section-head">

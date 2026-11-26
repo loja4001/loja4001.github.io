@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Estilos de Aprendizagem</title>
+<meta name="description" content="Questionário de estilos de aprendizagem com resultado imediato: Visual, Auditivo, Leitura/Escrita e Cinestésico.">
+<style>
+:root{
+  --bg:#f6f6fb;--card:#ffffff;--ink:#1d1d35;--muted:#5d5d78;--line:#e2e2ef;
+  --brand:#3b3b8f;--brand-soft:#ececfa;--sel:#e7e7fb;
+  --V:#3b6fd8;--A:#d8743b;--R:#2f9e6e;--K:#b0479b;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#14141f;--card:#1e1e2d;--ink:#ececf6;--muted:#a3a3bd;--line:#33334a;
+    --brand:#a9a9ff;--brand-soft:#2a2a44;--sel:#2c2c4d;
+    --V:#7aa2ff;--A:#ffa46b;--R:#5fd3a0;--K:#e88ad6;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#14141f;--card:#1e1e2d;--ink:#ececf6;--muted:#a3a3bd;--line:#33334a;
+  --brand:#a9a9ff;--brand-soft:#2a2a44;--sel:#2c2c4d;
+  --V:#7aa2ff;--A:#ffa46b;--R:#5fd3a0;--K:#e88ad6;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+.wrap{max-width:760px;margin:0 auto;padding:24px 16px 80px}
+header h1{margin:8px 0 4px;font-size:clamp(1.5rem,4vw,2rem);color:var(--brand)}
+header p{margin:0 0 16px;color:var(--muted)}
+.intro{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin-bottom:18px}
+.intro label{display:block;font-weight:600;margin-bottom:6px}
+.intro input{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);font:inherit}
+.progress{position:sticky;top:0;z-index:5;background:var(--bg);padding:10px 0}
+.bar{height:8px;background:var(--line);border-radius:99px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--brand);transition:width .25s}
+.progress small{color:var(--muted)}
+fieldset{border:1px solid var(--line);background:var(--card);border-radius:14px;padding:14px 16px 10px;margin:0 0 14px}
+legend{float:left;width:100%;padding:0;margin-bottom:8px;font-weight:600}
+legend b{color:var(--brand);margin-right:4px}
+.opt{display:flex;gap:10px;align-items:flex-start;padding:9px 10px;border-radius:10px;cursor:pointer;border:1px solid transparent}
+.opt:hover{background:var(--brand-soft)}
+.opt input{margin-top:4px;width:18px;height:18px;accent-color:var(--brand);flex:none}
+.opt:has(input:checked){background:var(--sel);border-color:var(--brand)}
+.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:20px}
+button{font:inherit;font-weight:600;border-radius:10px;padding:12px 18px;cursor:pointer;border:1px solid var(--brand)}
+.primary{background:var(--brand);color:var(--card)}
+.ghost{background:transparent;color:var(--brand)}
+.msg{color:#c0392b;font-weight:600;min-height:1.5em;margin-top:8px}
+#result{display:none}
+.res-card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;margin-bottom:16px}
+.res-card h2{margin:0 0 4px;color:var(--brand)}
+.who{color:var(--muted);margin:0 0 14px}
+.row{display:grid;grid-template-columns:130px 1fr 70px;gap:10px;align-items:center;margin:10px 0}
+.row .track{height:22px;background:var(--line);border-radius:6px;overflow:hidden}
+.row .fill{height:100%;border-radius:6px;transition:width .6s}
+.row span:last-child{text-align:right;font-variant-numeric:tabular-nums;color:var(--muted)}
+.big{font-size:1.4rem;font-weight:700}
+.style{border-left:5px solid;padding:10px 14px;margin:12px 0;background:var(--bg);border-radius:0 10px 10px 0}
+.style h3{margin:0 0 4px}
+.style ul{margin:6px 0 0;padding-left:20px}
+footer{color:var(--muted);font-size:.85rem;margin-top:30px}
+@media (max-width:480px){.row{grid-template-columns:1fr auto;gap:4px 10px}.row .track{grid-column:1/-1;order:3}}
+.row span:last-child{white-space:nowrap}
+@media print{
+  .progress,.actions,#form,.intro,header p{display:none!important}
+  #result{display:block!important}
+  body{background:#fff;color:#000}
+}
+</style>
+</head>
+<body>
+<nav style="display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 18px;background:#0E1A33;color:#F2F2EF;font-family:system-ui,sans-serif;font-size:14px;border-bottom:2px solid #C9A050"><a href="index.html" style="color:#F2F2EF;text-decoration:none">&larr; Voltar ao site da Loja</a><span style="color:#C9A050;letter-spacing:.04em">Área do Irmão · Estilos de Aprendizagem</span></nav>
+
+<div class="wrap">
+  <header>
+    <h1>Questionário de Estilos de Aprendizagem</h1>
+    <p>Escolha a resposta que melhor explica a sua preferência. Você pode marcar mais de uma opção se uma só não representar o que você pensa. Deixe em branco as perguntas que não se aplicam.</p>
+  </header>
+
+  <div id="quiz">
+    <div class="intro">
+      <label for="nome">Seu nome (opcional)</label>
+      <input id="nome" type="text" autocomplete="name" placeholder="Digite seu nome">
+    </div>
+    <div class="progress"><div class="bar"><i id="pbar"></i></div><small id="ptxt">0 de 16 perguntas respondidas</small></div>
+    <form id="form"></form>
+    <div class="msg" id="msg"></div>
+    <div class="actions">
+      <button class="primary" id="btnResult" type="button">Ver resultado</button>
+      <button class="ghost" id="btnClear" type="button">Limpar respostas</button>
+    </div>
+  </div>
+
+  <div id="result">
+    <div class="res-card">
+      <h2>Seu resultado</h2>
+      <p class="who" id="who"></p>
+      <div id="bars"></div>
+      <p>Estilo predominante: <span class="big" id="top"></span></p>
+      <p id="note" style="color:var(--muted)"></p>
+    </div>
+    <div class="res-card" id="desc"></div>
+    <div class="actions">
+      <button class="primary" type="button" onclick="window.print()">Imprimir / salvar em PDF</button>
+      <button class="ghost" type="button" id="btnBack">Voltar e revisar</button>
+      <button class="ghost" type="button" id="btnNew">Responder de novo</button>
+    </div>
+  </div>
+
+  <footer>Baseado no modelo VARK (Visual, Auditivo, Leitura/Escrita, Cinestésico). As respostas ficam apenas no seu navegador.</footer>
+</div>
+
+<script>
+const Q = [{"q": "Quero obter informações sobre uma hospedagem. Antes de visitar, eu gostaria de:", "o": [{"t": "uma conversa com o proprietário ou gerente.", "s": "A"}, {"t": "uma descrição impressa dos quartos e das instalações.", "s": "R"}, {"t": "uma planta mostrando os quartos e um mapa da região.", "s": "V"}, {"t": "assistir a um vídeo do imóvel.", "s": "K"}]}, {"q": "Quero aprender a fazer algo novo no computador. Eu:", "o": [{"t": "leria as instruções escritas que vieram com o programa.", "s": "R"}, {"t": "conversaria com pessoas que conhecem o programa.", "s": "A"}, {"t": "seguiria os diagramas de um livro.", "s": "V"}, {"t": "começaria a usá-lo e aprenderia por tentativa e erro.", "s": "K"}]}, {"q": "Estou fazendo um histórico da região onde moro. Eu:", "o": [{"t": "reuniria mapas e cartas antigos.", "s": "V"}, {"t": "gravaria histórias de pessoas contando sobre os velhos tempos.", "s": "A"}, {"t": "compararia fotos históricas da região com o que existe hoje.", "s": "K"}, {"t": "leria artigos e outras informações em jornais e documentos antigos.", "s": "R"}]}, {"q": "Quero conhecer um novo projeto. Eu pediria:", "o": [{"t": "exemplos de onde o projeto foi usado com sucesso.", "s": "K"}, {"t": "um relatório escrito descrevendo as principais características do projeto.", "s": "R"}, {"t": "diagramas mostrando as etapas do projeto, com gráficos de benefícios e custos.", "s": "V"}, {"t": "uma oportunidade de discutir o projeto.", "s": "A"}]}, {"q": "Quero aprender a tirar fotos melhores. Eu:", "o": [{"t": "usaria diagramas mostrando a câmera e a função de cada parte.", "s": "V"}, {"t": "usaria exemplos de fotos boas e ruins, mostrando como melhorá-las.", "s": "K"}, {"t": "usaria as instruções escritas sobre o que fazer.", "s": "R"}, {"t": "faria perguntas e conversaria sobre a câmera e seus recursos.", "s": "A"}]}, {"q": "Quero ter certeza de que estou fazendo meus exercícios de fisioterapia corretamente. Eu:", "o": [{"t": "ouviria uma explicação de como os exercícios devem ser feitos.", "s": "A"}, {"t": "estudaria diagramas ilustrando como os exercícios devem ser feitos.", "s": "V"}, {"t": "conferiria uma lista dos pontos importantes para fazer os exercícios corretamente.", "s": "R"}, {"t": "compararia o que estou fazendo com uma demonstração em vídeo.", "s": "K"}]}, {"q": "Ao escolher uma carreira ou área de estudo, estes pontos são importantes para mim:", "o": [{"t": "trabalhar com desenhos, mapas ou gráficos.", "s": "V"}, {"t": "usar bem as palavras em comunicações escritas.", "s": "R"}, {"t": "aplicar meu conhecimento em situações reais.", "s": "K"}, {"t": "comunicar-me com os outros por meio de conversas e discussões.", "s": "A"}]}, {"q": "Estou com dificuldade para montar um móvel que veio desmontado. Eu:", "o": [{"t": "pediria conselho ou ajuda a outra pessoa.", "s": "A"}, {"t": "tentaria encaixar as peças para ver como se combinam.", "s": "K"}, {"t": "reveria os diagramas passo a passo para ver se deixei passar algo.", "s": "V"}, {"t": "releria as instruções escritas passo a passo para ver se deixei passar algo.", "s": "R"}]}, {"q": "Um site tem um vídeo mostrando como fazer um gráfico especial. Há uma pessoa falando, algumas listas e palavras descrevendo o que fazer e alguns diagramas. Eu aprenderia mais:", "o": [{"t": "lendo as palavras.", "s": "R"}, {"t": "ouvindo.", "s": "A"}, {"t": "vendo os diagramas.", "s": "V"}, {"t": "assistindo às ações.", "s": "K"}]}, {"q": "Quero economizar mais dinheiro e decidir entre várias opções. Eu:", "o": [{"t": "consideraria exemplos de cada opção usando meus dados financeiros.", "s": "K"}, {"t": "usaria gráficos mostrando as diferentes opções para diferentes períodos.", "s": "V"}, {"t": "leria um folheto impresso que descreve as opções em detalhes.", "s": "R"}, {"t": "conversaria com um especialista sobre as opções.", "s": "A"}]}, {"q": "Quando estou aprendendo, eu:", "o": [{"t": "uso exemplos e aplicações práticas.", "s": "K"}, {"t": "percebo padrões nas coisas.", "s": "V"}, {"t": "leio livros, artigos e apostilas.", "s": "R"}, {"t": "gosto de conversar sobre o assunto.", "s": "A"}]}, {"q": "Ao aprender pela internet, eu gosto de:", "o": [{"t": "design interessante e recursos visuais.", "s": "V"}, {"t": "podcasts e vídeos em que posso ouvir especialistas.", "s": "A"}, {"t": "vídeos mostrando como fazer as coisas.", "s": "K"}, {"t": "artigos detalhados.", "s": "R"}]}, {"q": "Terminei uma competição ou prova e gostaria de um retorno (feedback):", "o": [{"t": "com gráficos mostrando como meu desempenho melhorou.", "s": "V"}, {"t": "com exemplos do que eu fiz.", "s": "K"}, {"t": "de alguém que converse comigo sobre o resultado.", "s": "A"}, {"t": "com uma descrição escrita dos meus resultados.", "s": "R"}]}, {"q": "Quero saber mais sobre uma excursão que vou fazer. Eu:", "o": [{"t": "conversaria com quem planejou a excursão ou com outras pessoas que vão participar.", "s": "A"}, {"t": "usaria um mapa para ver onde ficam os lugares.", "s": "V"}, {"t": "veria detalhes sobre os destaques e as atividades da excursão.", "s": "K"}, {"t": "leria sobre a excursão no roteiro.", "s": "R"}]}, {"q": "Prefiro um apresentador ou professor que use:", "o": [{"t": "demonstrações, modelos ou aulas práticas.", "s": "K"}, {"t": "perguntas e respostas, conversas, discussões em grupo ou palestrantes convidados.", "s": "A"}, {"t": "diagramas, gráficos, mapas ou tabelas.", "s": "V"}, {"t": "apostilas, livros ou leituras.", "s": "R"}]}, {"q": "Quero aprender a jogar um novo jogo de tabuleiro ou de cartas. Eu:", "o": [{"t": "assistiria a outras pessoas jogando antes de participar.", "s": "K"}, {"t": "ouviria alguém explicando e faria perguntas.", "s": "A"}, {"t": "leria as instruções.", "s": "R"}, {"t": "usaria os diagramas que explicam as várias etapas, jogadas e estratégias do jogo.", "s": "V"}]}];
+const STY = {
+  V:{n:"Visual",d:"Você aprende melhor com diagramas, gráficos, mapas, cores e esquemas que mostram como as coisas se relacionam.",t:["Transforme textos em mapas mentais e fluxogramas","Use cores e destaques para organizar ideias","Prefira vídeos e materiais com gráficos e ilustrações"]},
+  A:{n:"Auditivo",d:"Você aprende melhor ouvindo, conversando, discutindo e explicando em voz alta.",t:["Participe de debates e grupos de estudo","Grave resumos e ouça depois","Explique o conteúdo em voz alta para alguém"]},
+  R:{n:"Leitura/Escrita",d:"Você aprende melhor lendo e escrevendo: textos, listas, manuais, resumos e anotações.",t:["Faça resumos e listas com suas próprias palavras","Reescreva anotações e reorganize em tópicos","Busque artigos, livros e materiais escritos detalhados"]},
+  K:{n:"Cinestésico",d:"Você aprende melhor fazendo: prática, exemplos reais, demonstrações e experiências concretas.",t:["Pratique logo depois de aprender algo","Use exemplos e casos reais do seu dia a dia","Faça simulações, exercícios e estudos de caso"]}
+};
+const ORDER = ["V","A","R","K"];
+const KEY = "vark-respostas-v1";
+const $ = s => document.querySelector(s);
+const form = $("#form");
+
+form.innerHTML = Q.map((q,i)=>`
+  <fieldset data-q="${i}">
+    <legend><b>${i+1}.</b>${q.q}</legend>
+    ${q.o.map((o,j)=>`<label class="opt"><input type="checkbox" name="q${i}" value="${o.s}" data-j="${j}"><span>${o.t}</span></label>`).join("")}
+  </fieldset>`).join("");
+
+function answered(){ return Q.filter((_,i)=>form.querySelector(`input[name=q${i}]:checked`)).length; }
+function updateProgress(){
+  const n = answered();
+  $("#pbar").style.width = (n/Q.length*100)+"%";
+  $("#ptxt").textContent = `${n} de ${Q.length} perguntas respondidas`;
+}
+function save(){
+  try{
+    const sel=[...form.querySelectorAll("input:checked")].map(x=>x.name+":"+x.dataset.j);
+    localStorage.setItem(KEY, JSON.stringify({nome:$("#nome").value, sel}));
+  }catch(e){}
+}
+function load(){
+  try{
+    const d=JSON.parse(localStorage.getItem(KEY)||"null"); if(!d) return;
+    $("#nome").value=d.nome||"";
+    d.sel.forEach(k=>{const [n,j]=k.split(":");const el=form.querySelector(`input[name=${n}][data-j="${j}"]`);if(el)el.checked=true;});
+  }catch(e){}
+}
+form.addEventListener("change",()=>{updateProgress();save();$("#msg").textContent="";});
+$("#nome").addEventListener("input",save);
+
+function showResult(){
+  const checked=[...form.querySelectorAll("input:checked")];
+  if(!checked.length){ $("#msg").textContent="Marque pelo menos uma opção para ver o resultado."; return; }
+  const c={V:0,A:0,R:0,K:0}; checked.forEach(x=>c[x.value]++);
+  const total=checked.length, max=Math.max(...Object.values(c));
+  const tops=ORDER.filter(k=>c[k]===max);
+  const nome=$("#nome").value.trim();
+  $("#who").textContent=(nome?nome+" · ":"")+`${answered()} de ${Q.length} perguntas respondidas · ${total} marcações`;
+  $("#bars").innerHTML=ORDER.map(k=>{
+    const p=Math.round(c[k]/total*100);
+    return `<div class="row"><span><b>${STY[k].n}</b></span><div class="track"><div class="fill" style="width:0;background:var(--${k})" data-w="${c[k]/max*100}"></div></div><span>${c[k]} · ${p}%</span></div>`;
+  }).join("");
+  $("#top").textContent=tops.map(k=>STY[k].n).join(" + ");
+  $("#note").textContent = tops.length>1
+    ? "Empate: você tem um perfil multimodal, combinando mais de um estilo."
+    : (max - Math.max(...ORDER.filter(k=>k!==tops[0]).map(k=>c[k])) <= 1
+        ? "A diferença para o segundo estilo é pequena: você também usa bem outras formas de aprender."
+        : "");
+  const showK = ORDER.filter(k=>c[k]>0).sort((a,b)=>c[b]-c[a]);
+  $("#desc").innerHTML="<h2>O que isso significa</h2>"+showK.map(k=>`
+    <div class="style" style="border-color:var(--${k})">
+      <h3 style="color:var(--${k})">${STY[k].n} — ${c[k]} marcações</h3>
+      <div>${STY[k].d}</div>
+      <ul>${STY[k].t.map(t=>`<li>${t}</li>`).join("")}</ul>
+    </div>`).join("");
+  $("#quiz").style.display="none"; $("#result").style.display="block";
+  window.scrollTo({top:0,behavior:"smooth"});
+  requestAnimationFrame(()=>setTimeout(()=>document.querySelectorAll(".fill").forEach(f=>f.style.width=f.dataset.w+"%"),50));
+}
+function clearAll(){ form.reset(); $("#nome").value=""; try{localStorage.removeItem(KEY)}catch(e){} updateProgress(); }
+$("#btnResult").onclick=showResult;
+$("#btnClear").onclick=()=>{clearAll();window.scrollTo({top:0});};
+$("#btnBack").onclick=()=>{$("#result").style.display="none";$("#quiz").style.display="block";window.scrollTo({top:0});};
+$("#btnNew").onclick=()=>{clearAll();$("#btnBack").onclick();};
+load(); updateProgress();
+</script>
+</body>
+</html>

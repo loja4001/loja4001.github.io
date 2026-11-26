@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Teste Roda da Vida</title>
+<style>
+  :root{
+    --bg:#f6f5f2; --card:#fff; --ink:#1f2328; --muted:#6b7078; --line:#e3e1dc;
+    --c1:#2f7d6d; --c2:#3b6fb6; --c3:#c0563f; --c4:#b08a1e;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink)}
+  header{padding:28px 20px 8px;max-width:1200px;margin:auto}
+  h1{margin:0;font-size:1.7rem}
+  header p{margin:6px 0 0;color:var(--muted)}
+  main{max-width:1200px;margin:auto;padding:16px 20px 40px;display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:20px}
+  @media (max-width:900px){main{grid-template-columns:1fr}}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px}
+  .grupo{margin-bottom:18px}
+  .grupo h2{font-size:.95rem;margin:0 0 8px;display:flex;align-items:center;gap:8px;text-transform:uppercase;letter-spacing:.04em}
+  .grupo h2 .dot{width:12px;height:12px;border-radius:50%}
+  .grupo h2 .media{margin-left:auto;font-weight:500;color:var(--muted);text-transform:none;letter-spacing:0}
+  .area{border-top:1px solid var(--line);padding:10px 0}
+  .linha{display:grid;grid-template-columns:minmax(0,1fr) 150px 44px;align-items:center;gap:10px}
+  .linha label{font-weight:600;font-size:.95rem}
+  input[type=range]{width:100%}
+  input[type=number]{width:44px;padding:4px;border:1px solid var(--line);border-radius:6px;text-align:center;font-size:1rem;font-weight:700}
+  textarea{width:100%;margin-top:6px;border:1px solid var(--line);border-radius:8px;padding:6px 8px;font:inherit;font-size:.88rem;resize:vertical;min-height:34px;color:var(--ink)}
+  .grafico{position:sticky;top:12px;align-self:start}
+  .toggle{display:flex;gap:6px;margin-bottom:8px}
+  button{border:1px solid var(--line);background:#fff;border-radius:8px;padding:7px 12px;font:inherit;font-size:.88rem;cursor:pointer}
+  button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+  button:hover{border-color:#999}
+  svg{width:100%;height:auto;display:block}
+  .resumo{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:10px}
+  .kpi{border:1px solid var(--line);border-radius:10px;padding:8px 10px}
+  .kpi small{color:var(--muted);display:block}
+  .kpi b{font-size:1.3rem}
+  .acoes{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+  .destaque{margin-top:12px;font-size:.9rem;color:var(--muted)}
+  .destaque b{color:var(--ink)}
+  @media print{
+    body{background:#fff}.acoes,.toggle,input[type=range]{display:none}
+    main{grid-template-columns:1fr 1fr}.card{border:none;padding:0}.grafico{position:static}
+  }
+</style>
+</head>
+<body>
+<nav style="display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 18px;background:#0E1A33;color:#F2F2EF;font-family:system-ui,sans-serif;font-size:14px;border-bottom:2px solid #C9A050"><a href="index.html" style="color:#F2F2EF;text-decoration:none">&larr; Voltar ao site da Loja</a><span style="color:#C9A050;letter-spacing:.04em">Área do Irmão · Roda da Vida</span></nav>
+
+<header>
+  <h1>Teste Roda da Vida</h1>
+  <p>Dê uma nota de 0 a 10 para cada área e justifique. O gráfico se atualiza na hora.</p>
+</header>
+
+<main>
+  <section class="card" id="form"></section>
+
+  <section class="card grafico">
+    <div class="toggle">
+      <button id="bRadar" class="on" type="button">Radar</button>
+      <button id="bRoda" type="button">Roda</button>
+    </div>
+    <svg id="chart" viewBox="-110 0 860 640" role="img" aria-label="Gráfico da Roda da Vida"></svg>
+    <div class="resumo" id="resumo"></div>
+    <div class="destaque" id="destaque"></div>
+    <div class="acoes">
+      <button type="button" id="png">Baixar gráfico (PNG)</button>
+      <button type="button" id="csv">Exportar CSV</button>
+      <button type="button" onclick="window.print()">Imprimir / PDF</button>
+      <button type="button" id="limpar">Limpar</button>
+    </div>
+  </section>
+</main>
+
+<script>
+const GRUPOS = [
+  {nome:"Pessoal", cor:"var(--c1)", hex:"#2f7d6d", areas:["Saúde e Disposição","Desenvolvimento Intelectual","Equilíbrio Emocional"]},
+  {nome:"Profissional", cor:"var(--c2)", hex:"#3b6fb6", areas:["Realização e Propósito","Recursos Financeiros","Contribuição Social"]},
+  {nome:"Relacionamentos", cor:"var(--c3)", hex:"#c0563f", areas:["Família","Relacionamento Amoroso","Vida Social"]},
+  {nome:"Qualidade de Vida", cor:"var(--c4)", hex:"#b08a1e", areas:["Criatividade, Hobbies e Diversão","Plenitude e Felicidade","Espiritualidade"]},
+];
+const AREAS = GRUPOS.flatMap((g,gi)=>g.areas.map(a=>({nome:a,grupo:gi})));
+const KEY = "roda-da-vida-v1";
+let modo = "radar";
+let dados = AREAS.map(()=>({nota:0,just:""}));
+
+try{ const s=JSON.parse(localStorage.getItem(KEY)); if(Array.isArray(s)&&s.length===AREAS.length) dados=s; }catch(e){}
+function salvar(){ try{localStorage.setItem(KEY,JSON.stringify(dados));}catch(e){} }
+
+// ---------- formulário ----------
+const form = document.getElementById("form");
+let idx = 0;
+GRUPOS.forEach((g,gi)=>{
+  const box = document.createElement("div"); box.className="grupo";
+  box.innerHTML = `<h2><span class="dot" style="background:${g.cor}"></span>${g.nome}<span class="media" id="m${gi}"></span></h2>`;
+  g.areas.forEach(a=>{
+    const i = idx++;
+    const el = document.createElement("div"); el.className="area";
+    el.innerHTML = `
+      <div class="linha">
+        <label for="r${i}">${a}</label>
+        <input type="range" id="r${i}" min="0" max="10" step="1" value="${dados[i].nota}" style="accent-color:${g.hex}">
+        <input type="number" id="n${i}" min="0" max="10" step="1" value="${dados[i].nota}" aria-label="Nota ${a}">
+      </div>
+      <textarea id="t${i}" rows="1" placeholder="Justifique a sua nota. O que pode melhorar?"></textarea>`;
+    box.appendChild(el);
+    setTimeout(()=>{
+      const r=document.getElementById("r"+i), n=document.getElementById("n"+i), t=document.getElementById("t"+i);
+      t.value = dados[i].just || "";
+      const set = v => { v=Math.max(0,Math.min(10,Math.round(+v||0))); dados[i].nota=v; r.value=v; n.value=v; salvar(); desenhar(); };
+      r.addEventListener("input",()=>set(r.value));
+      n.addEventListener("input",()=>set(n.value));
+      t.addEventListener("input",()=>{dados[i].just=t.value; salvar();});
+    });
+  });
+  form.appendChild(box);
+});
+
+// ---------- gráfico ----------
+const svg = document.getElementById("chart");
+const CX=320, CY=320, R=220, N=AREAS.length;
+const ang = i => -Math.PI/2 + i*2*Math.PI/N;
+const pt = (i,v) => [CX+Math.cos(ang(i))*R*v/10, CY+Math.sin(ang(i))*R*v/10];
+const esc = s => s.replace(/&/g,"&amp;").replace(/</g,"&lt;");
+
+function quebra(txt){ // quebra rótulo em até 2 linhas
+  if(txt.length<=16) return [txt];
+  const p=txt.split(" "); let a="",b="";
+  for(const w of p){ if((a+" "+w).trim().length<=16 && !b) a=(a+" "+w).trim(); else b=(b+" "+w).trim(); }
+  return [a,b];
+}
+
+function rotulos(){
+  let s="";
+  AREAS.forEach((a,i)=>{
+    const [x,y]=[CX+Math.cos(ang(i))*(R+30), CY+Math.sin(ang(i))*(R+30)];
+    const c=Math.cos(ang(i)); const anchor = Math.abs(c)<.2?"middle":(c>0?"start":"end");
+    const linhas=quebra(a.nome);
+    const dy0 = Math.sin(ang(i))<-.5 ? -(linhas.length-1)*15 : (Math.sin(ang(i))>.5?8:-(linhas.length-1)*7.5+4);
+    s+=`<text x="${x}" y="${y+dy0}" text-anchor="${anchor}" font-size="14" fill="#1f2328">`+
+       linhas.map((l,k)=>`<tspan x="${x}" dy="${k?15:0}">${esc(l)}</tspan>`).join("")+
+       `<tspan x="${x}" dy="16" font-weight="700" fill="${GRUPOS[a.grupo].hex}">${dados[i].nota}</tspan></text>`;
+  });
+  return s;
+}
+
+function grade(){
+  let s="";
+  for(let k=2;k<=10;k+=2){
+    const pts=AREAS.map((_,i)=>pt(i,k).join(",")).join(" ");
+    s+= modo==="radar"
+      ? `<polygon points="${pts}" fill="none" stroke="#e3e1dc"/>`
+      : `<circle cx="${CX}" cy="${CY}" r="${R*k/10}" fill="none" stroke="#e3e1dc"/>`;
+    s+=`<text x="${CX+4}" y="${CY-R*k/10+12}" font-size="10" fill="#9aa0a6">${k}</text>`;
+  }
+  AREAS.forEach((_,i)=>{ const [x,y]=pt(i,10); s+=`<line x1="${CX}" y1="${CY}" x2="${x}" y2="${y}" stroke="#e3e1dc"/>`; });
+  return s;
+}
+
+function radar(){
+  const pts=AREAS.map((_,i)=>pt(i,dados[i].nota).join(",")).join(" ");
+  let s=`<polygon points="${pts}" fill="rgba(59,111,182,.22)" stroke="#3b6fb6" stroke-width="2.5" stroke-linejoin="round"/>`;
+  AREAS.forEach((a,i)=>{ const [x,y]=pt(i,dados[i].nota); s+=`<circle cx="${x}" cy="${y}" r="5" fill="${GRUPOS[a.grupo].hex}" stroke="#fff" stroke-width="1.5"/>`; });
+  return s;
+}
+
+function roda(){
+  let s=""; const half=Math.PI/N;
+  AREAS.forEach((a,i)=>{
+    const r=R*dados[i].nota/10; if(!r) return;
+    const a0=ang(i)-half, a1=ang(i)+half;
+    s+=`<path d="M${CX},${CY} L${CX+Math.cos(a0)*r},${CY+Math.sin(a0)*r} A${r},${r} 0 0 1 ${CX+Math.cos(a1)*r},${CY+Math.sin(a1)*r} Z" fill="${GRUPOS[a.grupo].hex}" fill-opacity=".75" stroke="#fff" stroke-width="1.5"/>`;
+  });
+  return s;
+}
+
+function desenhar(){
+  svg.innerHTML = `<rect x="-110" width="860" height="640" fill="#fff"/>` + grade() + (modo==="radar"?radar():roda()) + rotulos();
+  // médias
+  const media = arr => arr.reduce((a,b)=>a+b,0)/arr.length;
+  const res = document.getElementById("resumo"); res.innerHTML="";
+  GRUPOS.forEach((g,gi)=>{
+    const m = media(AREAS.map((a,i)=>a.grupo===gi?dados[i].nota:null).filter(v=>v!==null));
+    document.getElementById("m"+gi).textContent = "média "+m.toFixed(1).replace(".",",");
+    res.innerHTML += `<div class="kpi" style="border-left:4px solid ${g.hex}"><small>${g.nome}</small><b>${m.toFixed(1).replace(".",",")}</b></div>`;
+  });
+  const geral = media(dados.map(d=>d.nota));
+  const ord = AREAS.map((a,i)=>({n:a.nome,v:dados[i].nota})).sort((x,y)=>x.v-y.v);
+  const min = ord[0].v, max = ord[ord.length-1].v;
+  document.getElementById("destaque").innerHTML =
+    `Média geral: <b>${geral.toFixed(1).replace(".",",")}</b><br>`+
+    `Prioridade (menor nota): <b>${ord.filter(o=>o.v===min).map(o=>o.n).join(", ")}</b> (${min})<br>`+
+    `Ponto forte: <b>${ord.filter(o=>o.v===max).map(o=>o.n).join(", ")}</b> (${max})`;
+}
+
+// ---------- botões ----------
+const bR=document.getElementById("bRadar"), bW=document.getElementById("bRoda");
+bR.onclick=()=>{modo="radar";bR.classList.add("on");bW.classList.remove("on");desenhar();};
+bW.onclick=()=>{modo="roda";bW.classList.add("on");bR.classList.remove("on");desenhar();};
+
+document.getElementById("limpar").onclick=()=>{
+  if(!confirm("Apagar todas as notas e justificativas?")) return;
+  dados=AREAS.map(()=>({nota:0,just:""})); salvar(); location.reload();
+};
+
+document.getElementById("png").onclick=()=>{
+  const xml=new XMLSerializer().serializeToString(svg);
+  const img=new Image();
+  img.onload=()=>{
+    const c=document.createElement("canvas"); c.width=1720; c.height=1280;
+    const ctx=c.getContext("2d"); ctx.drawImage(img,0,0,1720,1280);
+    const a=document.createElement("a"); a.download="roda-da-vida.png"; a.href=c.toDataURL("image/png"); a.click();
+  };
+  img.src="data:image/svg+xml;charset=utf-8,"+encodeURIComponent(xml.replace("<svg",'<svg xmlns="http://www.w3.org/2000/svg" font-family="Arial, sans-serif"'));
+};
+
+document.getElementById("csv").onclick=()=>{
+  const q=s=>'"'+String(s).replace(/"/g,'""')+'"';
+  const linhas=[["Grupo","Área","Nota","Justificativa"].map(q).join(";")];
+  AREAS.forEach((a,i)=>linhas.push([GRUPOS[a.grupo].nome,a.nome,dados[i].nota,dados[i].just].map(q).join(";")));
+  const blob=new Blob(["﻿"+linhas.join("\n")],{type:"text/csv;charset=utf-8"});
+  const a=document.createElement("a"); a.download="roda-da-vida.csv"; a.href=URL.createObjectURL(blob); a.click();
+};
+
+desenhar();
+</script>
+</body>
+</html>

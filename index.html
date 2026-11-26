@@ -154,6 +154,13 @@
   .valores h4{ margin:0 0 8px; font-family:var(--display); font-weight:400; font-size:23px; color:#fff; }
   .valores .n{ font-family:var(--display); color:var(--ouro); font-size:15px; margin-bottom:14px; display:block; }
 
+  .mv2{ display:grid; grid-template-columns:1fr 1fr; gap:24px; margin-top:56px; }
+  .titulo-valores{ display:flex; align-items:center; gap:22px; margin:80px 0 32px; font-size:clamp(32px,3.6vw,46px); color:var(--ouro-2); }
+  .titulo-valores::before, .titulo-valores::after{ content:''; flex:1; height:1px; background:linear-gradient(90deg, transparent, var(--ouro)); }
+  .titulo-valores::after{ background:linear-gradient(270deg, transparent, var(--ouro)); }
+  .valores h4{ position:relative; padding-left:20px; }
+  .valores h4::before{ content:''; position:absolute; left:0; top:.55em; width:8px; height:8px; border:1px solid var(--ouro-2); transform:rotate(45deg); }
+
   /* Patrono */
   .patrono{ background:linear-gradient(180deg, transparent, rgba(8,16,31,.6) 20%, rgba(8,16,31,.6) 80%, transparent); }
   .patrono .grade{ display:grid; grid-template-columns:.9fr 1.1fr; gap:72px; align-items:start; }
@@ -164,6 +171,14 @@
   .vozes b{ display:block; font-family:var(--display); font-weight:400; font-size:clamp(28px,3vw,40px); color:#fff; transition:color .3s, letter-spacing .4s, transform .4s; }
   .vozes span{ color:var(--nevoa); font-size:15.5px; }
   .vozes li:hover b{ color:var(--ouro-2); letter-spacing:.04em; transform:translateX(8px); }
+
+  .patrono-destaque{ margin:0; padding:48px 44px; border-radius:20px; text-align:center; border:1px solid var(--linha);
+    background:radial-gradient(ellipse at 50% 0%, rgba(201,160,80,.18), rgba(20,36,73,.5) 70%); }
+  .patrono-destaque .fp{ width:120px; height:120px; margin:0 auto 24px; border-radius:50%; border:1px solid var(--ouro); display:flex; align-items:center; justify-content:center; font-family:var(--display); font-size:46px; color:var(--ouro-2); box-shadow:0 0 0 8px rgba(201,160,80,.08); }
+  .patrono-destaque figcaption b{ display:block; font-family:var(--display); font-weight:400; font-size:clamp(32px,3.4vw,44px); color:#fff; }
+  .patrono-destaque figcaption span{ display:block; margin-top:6px; color:var(--ouro-2); }
+  .patrono-destaque blockquote{ margin:30px 0 0; padding-top:28px; border-top:1px solid var(--linha); font-family:var(--display); font-size:clamp(22px,2.2vw,28px); line-height:1.35; color:#fff; }
+  .patrono-destaque cite{ display:block; margin-top:12px; font-style:normal; font-size:14.5px; color:var(--nevoa); }
 
   /* Sessões */
   .sessoes .grade{ display:grid; grid-template-columns:1fr 1fr; gap:48px; align-items:stretch; }
@@ -231,7 +246,7 @@
     .menu{ display:none; }
     .menu.aberto{ display:flex; position:absolute; top:72px; left:0; right:0; flex-direction:column; align-items:flex-start; gap:12px; padding:20px 32px 28px; background:rgba(14,26,51,.97); }
     .abre{ display:block; }
-    .loja, .triade-mv, .patrono .grade, .sessoes .grade, .contato .grade{ grid-template-columns:1fr; gap:36px; }
+    .loja, .mv2, .patrono .grade, .sessoes .grade, .contato .grade{ grid-template-columns:1fr; gap:36px; }
     .valores{ grid-template-columns:1fr 1fr; }
     .secao{ padding:90px 0; }
     .coluna.j{ transform:translateX(calc(-100% - var(--abre,0) * 40vw)); }
@@ -268,7 +283,7 @@
     <nav class="menu" id="menu" aria-label="Principal">
       <a href="#rito">Rito Moderno</a>
       <a href="#loja">A Loja</a>
-      <a href="#triade">Tríade</a>
+      <a href="#triade">Missão e Valores</a>
       <a href="#patrono">O Patrono</a>
       <a href="#sessoes">Sessões</a>
       <a href="#perguntas">Perguntas</a>
@@ -325,24 +340,23 @@
     </div>
   </section>
 
-  <!-- TRÍADE -->
+  <!-- MISSÃO, VISÃO E VALORES -->
   <section class="secao" id="triade">
     <div class="wrap">
-      <div class="rv">
-        <h2 class="titulo">Tríade</h2>
-        <p class="apoio">Missão, visão e valores: o que nos move, aonde queremos chegar e do que não abrimos mão.</p>
+      <h2 class="titulo">Missão, Visão e Valores</h2>
+      <p class="apoio">A tríade da Loja: o que nos move, aonde queremos chegar e do que não abrimos mão.</p>
+      <div class="mv2">
+        <div class="luz"><h3>Missão</h3><p>Promover o aperfeiçoamento moral, intelectual e social de nossos Irmãos pelo estudo simbólico, pela fraternidade e pela beneficência, e devolver à sociedade homens mais conscientes de seus deveres.</p></div>
+        <div class="luz"><h3>Visão</h3><p>Ser reconhecida no Grande Oriente do Brasil como uma oficina sólida e unida, pela seriedade dos trabalhos, pela qualidade do estudo e pelo exemplo de conduta de seus membros.</p></div>
       </div>
-      <div class="triade-mv">
-        <div class="luz rv"><h3>Missão</h3><p>Promover o aperfeiçoamento moral, intelectual e social de nossos Irmãos pelo estudo simbólico, pela fraternidade e pela beneficência, e devolver à sociedade homens mais conscientes de seus deveres.</p></div>
-        <div class="luz rv"><h3>Visão</h3><p>Ser reconhecida no Grande Oriente do Brasil como uma oficina sólida e unida, pela seriedade dos trabalhos, pela qualidade do estudo e pelo exemplo de conduta de seus membros.</p></div>
-      </div>
+      <h3 class="titulo-valores"><span>Valores</span></h3>
       <div class="valores">
-        <div class="luz rv"><h4>Fraternidade</h4><p>Apoio mútuo entre Irmãos, praticado com discrição e constância, nos bons e nos maus momentos.</p></div>
-        <div class="luz rv"><h4>Liberdade de consciência</h4><p>Cada Irmão pensa por si. O debate é livre, e o respeito a quem diverge é obrigatório.</p></div>
-        <div class="luz rv"><h4>Retidão</h4><p>Agir com ética dentro e fora do templo. A palavra dada é cumprida.</p></div>
-        <div class="luz rv"><h4>Estudo</h4><p>A verdade se busca com trabalho: leitura, instruções e peças de arquitetura preparadas com rigor.</p></div>
-        <div class="luz rv"><h4>Tolerância</h4><p>Convivência serena com a diferença de crença, origem, profissão e opinião.</p></div>
-        <div class="luz rv"><h4>Beneficência</h4><p>Servir à sociedade e a quem precisa, sem alarde e sem esperar retorno.</p></div>
+        <div class="luz"><h4>Fraternidade</h4><p>Apoio mútuo entre Irmãos, praticado com discrição e constância, nos bons e nos maus momentos.</p></div>
+        <div class="luz"><h4>Liberdade de consciência</h4><p>Cada Irmão pensa por si. O debate é livre, e o respeito a quem diverge é obrigatório.</p></div>
+        <div class="luz"><h4>Retidão</h4><p>Agir com ética dentro e fora do templo. A palavra dada é cumprida.</p></div>
+        <div class="luz"><h4>Estudo</h4><p>A verdade se busca com trabalho: leitura, instruções e peças de arquitetura preparadas com rigor.</p></div>
+        <div class="luz"><h4>Tolerância</h4><p>Convivência serena com a diferença de crença, origem, profissão e opinião.</p></div>
+        <div class="luz"><h4>Beneficência</h4><p>Servir à sociedade e a quem precisa, sem alarde e sem esperar retorno.</p></div>
       </div>
     </div>
   </section>
@@ -352,16 +366,20 @@
     <div class="wrap grade">
       <div class="rv">
         <h2 class="titulo">O Patrono</h2>
-        <p class="apoio" style="margin-bottom:28px;">Fernando Pessoa, Lisboa, 1888–1935.</p>
-        <p>Um dos maiores poetas da língua portuguesa. Não escreveu apenas em seu nome: criou heterônimos, autores com biografia, estilo e visão de mundo próprios. Um só homem, muitas vozes.</p>
+        <p class="apoio" style="margin-bottom:28px;">Fernando Pessoa, o poeta que dá nome à Loja.</p>
+        <p>Um dos maiores poetas da língua portuguesa, autor de <cite>Mensagem</cite> (1934), obra em que transformou a história de Portugal numa meditação sobre destino, coragem e sentido.</p>
         <p>Em 1935, meses antes de morrer, defendeu publicamente a Maçonaria num artigo de jornal, contra um projeto de lei que pretendia proibir as associações secretas em Portugal. Fez isso sem nunca ter sido iniciado.</p>
+        <p>A Loja adota seu nome como lembrete de que a reflexão, a coragem e a palavra lavrada com rigor também são ferramentas de construção.</p>
       </div>
-      <ul class="vozes rv">
-        <li><b>Alberto Caeiro</b><span>o poeta da natureza, que via as coisas como são</span></li>
-        <li><b>Ricardo Reis</b><span>o clássico, das odes e da serenidade</span></li>
-        <li><b>Álvaro de Campos</b><span>o engenheiro, da inquietação moderna</span></li>
-        <li><b>Fernando Pessoa</b><span>ele mesmo, o de <cite>Mensagem</cite></span></li>
-      </ul>
+      <figure class="patrono-destaque rv">
+        <div class="fp" aria-hidden="true">FP</div>
+        <figcaption>
+          <b>Fernando Pessoa</b>
+          <span>Lisboa, 1888 – 1935</span>
+        </figcaption>
+        <blockquote>“Deus quer, o homem sonha, a obra nasce.”</blockquote>
+        <cite>Mensagem, “O Infante”</cite>
+      </figure>
     </div>
   </section>
 
@@ -444,7 +462,7 @@
       <p style="margin-top:18px;">© <span id="ano">2026</span>. Todos os direitos reservados.</p>
     </div>
     <nav aria-label="Rodapé">
-      <a href="#rito">Rito Moderno</a><a href="#triade">Tríade</a><a href="#sessoes">Sessões</a><a href="#contato">Contato</a><a href="#" data-irmao>Área do Irmão</a>
+      <a href="#rito">Rito Moderno</a><a href="#triade">Missão, Visão e Valores</a><a href="#sessoes">Sessões</a><a href="#contato">Contato</a><a href="#" data-irmao>Área do Irmão</a>
     </nav>
   </div>
 </footer>
